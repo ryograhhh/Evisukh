@@ -14,34 +14,79 @@ const API_EPISODE = 'https://kisskh.co/api/DramaList/Episode/';
 app.use(express.json());
 app.use(express.static('public'));
 
+// CORS middleware
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    next();
+});
+
 // Helper functions
 const getMediaInfo = async (mediaID) => {
     const url = `${API_INFO}${mediaID}`;
     console.log('Fetching media info from:', url);
-    const response = await axios.get(url);
-    return response.data;
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Referer': 'https://kisskh.co/',
+                'Origin': 'https://kisskh.co',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive'
+            },
+            timeout: 30000
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Media info fetch error:', error.message);
+        if (error.response) {
+            console.error('Response status:', error.response.status);
+            console.error('Response data:', error.response.data);
+        }
+        throw error;
+    }
 };
 
 const getPngImage = async (imageUrl) => {
     try {
         const response = await axios.get(imageUrl, {
-            responseType: 'arraybuffer'
+            responseType: 'arraybuffer',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Referer': 'https://kisskh.co/',
+                'Origin': 'https://kisskh.co',
+                'Accept': 'image/png,image/*,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9'
+            },
+            timeout: 30000
         });
         const base64Image = Buffer.from(response.data).toString('base64');
         return base64Image;
     } catch (error) {
-        throw new Error(`Failed to fetch image: ${error.message}`);
+        console.error('PNG image fetch error:', error.message);
+        throw new Error(`Failed to fetch episode data: ${error.message}`);
     }
 };
 
 const getSubtitles = async (subID) => {
     const url = `https://kisskh.co/api/Sub/${subID}`;
     try {
-        const response = await axios.get(url);
+        const response = await axios.get(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Referer': 'https://kisskh.co/',
+                'Origin': 'https://kisskh.co',
+                'Accept': 'application/json, text/plain, */*'
+            },
+            timeout: 15000
+        });
         return response.data;
     } catch (error) {
         console.log('Subtitles fetch error:', error.message);
-        return { error: 'Subtitles not available' };
+        return { error: 'Subtitles not available', message: error.message };
     }
 };
 
@@ -81,20 +126,37 @@ app.get('/api/:mediaID', async (req, res) => {
         
         if (!mediaInfo) {
             return res.status(404).json({ 
-                error: 'Media not found. Please check the ID and try again.' 
+                error: 'Media not found. Please check the ID and try again.',
+                mediaID: mediaID
             });
         }
 
         res.status(200).json({
             success: true,
+            mediaID: mediaID,
             data: mediaInfo,
             timestamp: new Date().toISOString()
         });
     } catch (error) {
         console.error('Error fetching media info:', error.message);
+        
+        let errorMessage = 'Failed to fetch media information';
+        if (error.message.includes('timeout')) {
+            errorMessage = 'Request timeout - kisskh.co may be slow or unavailable';
+        } else if (error.message.includes('ENOTFOUND')) {
+            errorMessage = 'Cannot connect to kisskh.co - check internet connection';
+        } else if (error.response && error.response.status === 404) {
+            errorMessage = 'Media not found - please check the media ID';
+        } else if (error.response && error.response.status === 403) {
+            errorMessage = 'Access denied - kisskh.co may be blocking requests';
+        }
+        
         res.status(500).json({ 
-            error: 'Failed to fetch media information',
-            details: error.message
+            error: errorMessage,
+            details: error.message,
+            mediaID: mediaID,
+            timestamp: new Date().toISOString(),
+            suggestion: 'Try using a different media ID from kisskh.co'
         });
     }
 });
@@ -114,16 +176,28 @@ app.get('/api/source/:episodeID', async (req, res) => {
     try {
         // Get the PNG image that contains episode data
         const base64Image = await getPngImage(imageUrl);
-        const decodedString = Buffer.from(base64Image, 'base64').toString('utf-8');
-        const jsonObject = JSON.parse(decodedString);
+        
+        // Try to decode the base64 image as text
+        let jsonObject;
+        try {
+            const decodedString = Buffer.from(base64Image, 'base64').toString('utf-8');
+            jsonObject = JSON.parse(decodedString);
+        } catch (decodeError) {
+            console.error('Failed to decode PNG data:', decodeError.message);
+            return res.status(500).json({
+                error: 'Failed to decode episode data',
+                details: 'Episode data format may have changed or episode not found',
+                episodeID: episodeID
+            });
+        }
         
         // Clean up the response object
-        delete jsonObject.Type;
-        delete jsonObject.id;
-        delete jsonObject.dataSaver;
-        delete jsonObject.a;
-        delete jsonObject.b;
-        delete jsonObject.dType;
+        if (jsonObject.Type) delete jsonObject.Type;
+        if (jsonObject.id) delete jsonObject.id;
+        if (jsonObject.dataSaver) delete jsonObject.dataSaver;
+        if (jsonObject.a) delete jsonObject.a;
+        if (jsonObject.b) delete jsonObject.b;
+        if (jsonObject.dType) delete jsonObject.dType;
 
         // Add referer
         jsonObject.Referer = API_HOST;
@@ -144,10 +218,21 @@ app.get('/api/source/:episodeID', async (req, res) => {
         res.status(200).json(responseObject);
     } catch (error) {
         console.error('Error fetching episode source:', error.message);
+        
+        let errorMessage = 'Failed to fetch episode source';
+        if (error.message.includes('timeout')) {
+            errorMessage = 'Request timeout - kisskh.co may be slow or unavailable';
+        } else if (error.message.includes('ENOTFOUND')) {
+            errorMessage = 'Cannot connect to kisskh.co - check internet connection';
+        } else if (error.response && error.response.status === 404) {
+            errorMessage = 'Episode not found - please check the episode ID';
+        }
+        
         res.status(500).json({ 
-            error: 'Failed to fetch episode source',
+            error: errorMessage,
             details: error.message,
-            episodeID: episodeID
+            episodeID: episodeID,
+            timestamp: new Date().toISOString()
         });
     }
 });
@@ -159,6 +244,29 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
     });
+});
+
+// Test endpoint to check kisskh.co connectivity
+app.get('/test', async (req, res) => {
+    try {
+        const testResponse = await axios.get('https://kisskh.co', {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            },
+            timeout: 10000
+        });
+        res.json({
+            status: 'kisskh.co is reachable',
+            statusCode: testResponse.status,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'kisskh.co is not reachable',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // 404 handler
