@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evisukh - Stream API Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: #4f46e5;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .result-container h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .json-output {
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .success {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .api-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .api-info h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .api-info code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .api-info pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Evisukh</h1>
+            <p>Advanced Streaming API Interface - Enhanced kisskh.co API</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📺 Get Media Info</h2>
+                <div class="form-group">
+                    <label for="mediaId">Media ID (from kisskh.co URL)</label>
+                    <input type="number" id="mediaId" placeholder="e.g., 9301" />
+                </div>
+                <button class="btn" onclick="getMediaInfo()">
+                    <span id="mediaLoadingText">Get Media Info</span>
+                </button>
+                <div id="mediaResult"></div>
+            </div>
+
+            <div class="card">
+                <h2>🎥 Get Episode Source</h2>
+                <div class="form-group">
+                    <label for="episodeId">Episode ID (from media response)</label>
+                    <input type="number" id="episodeId" placeholder="e.g., 163633" />
+                </div>
+                <button class="btn" onclick="getEpisodeSource()">
+                    <span id="episodeLoadingText">Get Episode Source</span>
+                </button>
+                <div id="episodeResult"></div>
+            </div>
+        </div>
+
+        <div class="api-info">
+            <h3>📖 API Documentation</h3>
+            <p><strong>How to use:</strong></p>
+            <ol>
+                <li>Go to <code>kisskh.co</code> and find your desired drama/movie</li>
+                <li>Copy the ID from the URL (e.g., <code>https://kisskh.co/Drama/Love-Next-Door?id=9301</code> → use <code>9301</code>)</li>
+                <li>Enter the Media ID above to get drama information and episode list</li>
+                <li>Use any Episode ID from the response to get streaming sources</li>
+            </ol>
+
+            <p><strong>API Endpoints:</strong></p>
+            <pre>GET /api/:mediaID        - Get media information
+GET /api/source/:episodeID - Get episode sources and subtitles</pre>
+
+            <p><strong>Example Usage:</strong></p>
+            <pre>curl http://localhost:3000/api/9301
+curl http://localhost:3000/api/source/163633</pre>
+        </div>
+    </div>
+
+    <script>
+        async function getMediaInfo() {
+            const mediaId = document.getElementById('mediaId').value;
+            const resultDiv = document.getElementById('mediaResult');
+            const loadingText = document.getElementById('mediaLoadingText');
+            
+            if (!mediaId) {
+                showError(resultDiv, 'Please enter a Media ID');
+                return;
+            }
+
+            setLoading(loadingText, 'Getting Media Info...');
+            
+            try {
+                const response = await fetch(`/api/${mediaId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(resultDiv, 'Media info retrieved successfully!');
+                    showResult(resultDiv, data);
+                    
+                    // Auto-populate episode ID if available
+                    if (data.data && data.data.episodes && data.data.episodes.length > 0) {
+                        document.getElementById('episodeId').value = data.data.episodes[0].id;
+                    }
+                } else {
+                    showError(resultDiv, data.error || 'Failed to fetch media info');
+                }
+            } catch (error) {
+                showError(resultDiv, 'Network error: ' + error.message);
+            }
+            
+            resetLoading(loadingText, 'Get Media Info');
+        }
+
+        async function getEpisodeSource() {
+            const episodeId = document.getElementById('episodeId').value;
+            const resultDiv = document.getElementById('episodeResult');
+            const loadingText = document.getElementById('episodeLoadingText');
+            
+            if (!episodeId) {
+                showError(resultDiv, 'Please enter an Episode ID');
+                return;
+            }
+
+            setLoading(loadingText, 'Getting Episode Source...');
+            
+            try {
+                const response = await fetch(`/api/source/${episodeId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(resultDiv, 'Episode source retrieved successfully!');
+                    showResult(resultDiv, data);
+                } else {
+                    showError(resultDiv, data.error || 'Failed to fetch episode source');
+                }
+            } catch (error) {
+                showError(resultDiv, 'Network error: ' + error.message);
+            }
+            
+            resetLoading(loadingText, 'Get Episode Source');
+        }
+
+        function setLoading(element, text) {
+            element.innerHTML = `<span class="loading"></span>${text}`;
+            element.parentElement.disabled = true;
+        }
+
+        function resetLoading(element, text) {
+            element.innerHTML = text;
+            element.parentElement.disabled = false;
+        }
+
+        function showError(container, message) {
+            const existingResult = container.querySelector('.result-container');
+            if (existingResult) existingResult.remove();
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            container.appendChild(errorDiv);
+            
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function showSuccess(container, message) {
+            const existingError = container.querySelector('.error');
+            if (existingError) existingError.remove();
+            
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            container.appendChild(successDiv);
+            
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        function showResult(container, data) {
+            const existingResult = container.querySelector('.result-container');
+            if (existingResult) existingResult.remove();
+            
+            const resultContainer = document.createElement('div');
+            resultContainer.className = 'result-container';
+            
+            const title = document.createElement('h3');
+            title.textContent = 'API Response:';
+            resultContainer.appendChild(title);
+            
+            const jsonOutput = document.createElement('div');
+            jsonOutput.className = 'json-output';
+            jsonOutput.textContent = JSON.stringify(data, null, 2);
+            resultContainer.appendChild(jsonOutput);
+            
+            container.appendChild(resultContainer);
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('mediaId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') getMediaInfo();
+        });
+
+        document.getElementById('episodeId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') getEpisodeSource();
+        });
+    </script>
+</body>
+</html>
