@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            line-height: 1.6;
         }
 
         .container {
@@ -26,17 +27,17 @@
 
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
+            font-size: 2.5em;
+            margin-bottom: 8px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -44,15 +45,28 @@
         }
 
         .header p {
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #666;
         }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .status-online { background: rgba(16, 185, 129, 0.1); color: #059669; }
+        .status-offline { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+        .status-checking { background: rgba(245, 158, 11, 0.1); color: #d97706; }
 
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
         .card {
@@ -61,18 +75,21 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .card h2 {
             color: #4f46e5;
             margin-bottom: 20px;
-            font-size: 1.5em;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .form-group {
@@ -92,7 +109,7 @@
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus {
@@ -112,78 +129,103 @@
             font-weight: 600;
             transition: all 0.3s ease;
             width: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
         }
 
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.7;
             cursor: not-allowed;
             transform: none;
         }
 
-        .result-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
-
-        .result-container h3 {
-            color: #4f46e5;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .json-output {
-            background: #1f2937;
-            color: #10b981;
-            border-radius: 8px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            max-height: 400px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            line-height: 1.5;
+        .btn-loading {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
         }
 
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
+            margin-right: 8px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .error {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 10px;
+        .result-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .success {
-            background: #f0fdf4;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
+        .result-container h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .json-output {
+            background: #1f2937;
+            color: #e5e7eb;
             border-radius: 8px;
-            padding: 12px;
-            margin-top: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 350px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            border: 1px solid #374151;
+        }
+
+        .json-key { color: #60a5fa; }
+        .json-string { color: #34d399; }
+        .json-number { color: #fbbf24; }
+        .json-boolean { color: #f87171; }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #2563eb;
+            border: 1px solid #93c5fd;
         }
 
         .api-info {
@@ -192,19 +234,21 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-top: 30px;
         }
 
         .api-info h3 {
             color: #4f46e5;
             margin-bottom: 15px;
+            font-size: 1.3em;
         }
 
         .api-info code {
             background: #f3f4f6;
+            color: #1f2937;
             padding: 2px 6px;
             border-radius: 4px;
             font-family: 'Courier New', monospace;
+            font-size: 0.9em;
         }
 
         .api-info pre {
@@ -214,6 +258,59 @@
             border-radius: 8px;
             overflow-x: auto;
             margin: 10px 0;
+            border: 1px solid #374151;
+        }
+
+        .quick-test {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .quick-test h4 {
+            color: #15803d;
+            margin-bottom: 10px;
+        }
+
+        .quick-test button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 5px 0 0;
+            transition: background 0.3s ease;
+        }
+
+        .quick-test button:hover {
+            background: #16a34a;
+        }
+
+        .episode-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .episode-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .episode-item:hover {
+            background: #e2e8f0;
         }
 
         @media (max-width: 768px) {
@@ -228,6 +325,10 @@
             .container {
                 padding: 15px;
             }
+
+            .card {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -235,17 +336,28 @@
     <div class="container">
         <div class="header">
             <h1>🎬 Evisukh</h1>
-            <p>Advanced Streaming API Interface - Enhanced kisskh.co API</p>
+            <p>Enhanced Streaming API Interface for kisskh.co</p>
+        </div>
+
+        <div id="statusBar" class="status-bar status-checking">
+            <span id="statusText">🔄 Checking API status...</span>
         </div>
 
         <div class="main-content">
             <div class="card">
                 <h2>📺 Get Media Info</h2>
+                
+                <div class="quick-test">
+                    <h4>🚀 Quick Test</h4>
+                    <button onclick="quickTestMedia(9441)">Test: The Judge from Hell (9441)</button>
+                    <button onclick="quickTestMedia(9301)">Test: Love Next Door (9301)</button>
+                </div>
+
                 <div class="form-group">
                     <label for="mediaId">Media ID (from kisskh.co URL)</label>
-                    <input type="number" id="mediaId" placeholder="e.g., 9301" />
+                    <input type="number" id="mediaId" placeholder="e.g., 9441 or 9301" />
                 </div>
-                <button class="btn" onclick="getMediaInfo()">
+                <button class="btn" id="mediaBtn" onclick="getMediaInfo()">
                     <span id="mediaLoadingText">Get Media Info</span>
                 </button>
                 <div id="mediaResult"></div>
@@ -253,11 +365,18 @@
 
             <div class="card">
                 <h2>🎥 Get Episode Source</h2>
+                
+                <div class="quick-test">
+                    <h4>🚀 Quick Test</h4>
+                    <button onclick="quickTestEpisode(163633)">Test Episode: 163633</button>
+                    <button onclick="quickTestEpisode(163623)">Test Episode: 163623</button>
+                </div>
+
                 <div class="form-group">
                     <label for="episodeId">Episode ID (from media response)</label>
                     <input type="number" id="episodeId" placeholder="e.g., 163633" />
                 </div>
-                <button class="btn" onclick="getEpisodeSource()">
+                <button class="btn" id="episodeBtn" onclick="getEpisodeSource()">
                     <span id="episodeLoadingText">Get Episode Source</span>
                 </button>
                 <div id="episodeResult"></div>
@@ -265,143 +384,243 @@
         </div>
 
         <div class="api-info">
-            <h3>📖 API Documentation</h3>
+            <h3>📖 API Documentation & Usage</h3>
             <p><strong>How to use:</strong></p>
             <ol>
-                <li>Go to <code>kisskh.co</code> and find your desired drama/movie</li>
+                <li>Visit <code>kisskh.co</code> and find your desired drama/movie</li>
                 <li>Copy the ID from the URL (e.g., <code>https://kisskh.co/Drama/Love-Next-Door?id=9301</code> → use <code>9301</code>)</li>
                 <li>Enter the Media ID above to get drama information and episode list</li>
-                <li>Use any Episode ID from the response to get streaming sources</li>
+                <li>Click on any episode from the results or manually enter Episode ID to get streaming sources</li>
             </ol>
 
             <p><strong>API Endpoints:</strong></p>
             <pre>GET /api/:mediaID        - Get media information
-GET /api/source/:episodeID - Get episode sources and subtitles</pre>
+GET /api/source/:episodeID - Get episode sources and subtitles
+GET /test                  - Test kisskh.co connectivity
+GET /health               - API health check</pre>
 
-            <p><strong>Example Usage:</strong></p>
-            <pre>curl http://localhost:3000/api/9301
-curl http://localhost:3000/api/source/163633</pre>
+            <p><strong>Example cURL commands:</strong></p>
+            <pre>curl http://localhost:3000/api/9441
+curl http://localhost:3000/api/source/163633
+curl http://localhost:3000/test</pre>
         </div>
     </div>
 
     <script>
+        let currentEpisodes = [];
+
+        // Check API status on page load
+        window.addEventListener('load', checkApiStatus);
+
+        async function checkApiStatus() {
+            const statusBar = document.getElementById('statusBar');
+            const statusText = document.getElementById('statusText');
+            
+            try {
+                statusText.innerHTML = '🔄 Checking API status...';
+                const response = await fetch('/test');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusBar.className = 'status-bar status-online';
+                    statusText.innerHTML = '✅ API Online - kisskh.co is reachable';
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                statusBar.className = 'status-bar status-offline';
+                statusText.innerHTML = '❌ API Issues - ' + error.message;
+            }
+        }
+
+        async function quickTestMedia(mediaId) {
+            document.getElementById('mediaId').value = mediaId;
+            await getMediaInfo();
+        }
+
+        async function quickTestEpisode(episodeId) {
+            document.getElementById('episodeId').value = episodeId;
+            await getEpisodeSource();
+        }
+
         async function getMediaInfo() {
-            const mediaId = document.getElementById('mediaId').value;
+            const mediaId = document.getElementById('mediaId').value.trim();
             const resultDiv = document.getElementById('mediaResult');
+            const btn = document.getElementById('mediaBtn');
             const loadingText = document.getElementById('mediaLoadingText');
             
             if (!mediaId) {
-                showError(resultDiv, 'Please enter a Media ID');
+                showAlert(resultDiv, 'Please enter a Media ID', 'error');
                 return;
             }
 
-            setLoading(loadingText, 'Getting Media Info...');
+            if (!/^\d+$/.test(mediaId)) {
+                showAlert(resultDiv, 'Media ID must be a number', 'error');
+                return;
+            }
+
+            setLoading(btn, loadingText, 'Getting Media Info...');
+            clearPreviousResults(resultDiv);
             
             try {
+                console.log('Fetching media info for ID:', mediaId);
                 const response = await fetch(`/api/${mediaId}`);
                 const data = await response.json();
                 
-                if (response.ok) {
-                    showSuccess(resultDiv, 'Media info retrieved successfully!');
-                    showResult(resultDiv, data);
+                if (response.ok && data.success) {
+                    showAlert(resultDiv, 'Media info retrieved successfully!', 'success');
+                    showResult(resultDiv, data, 'Media Information');
                     
-                    // Auto-populate episode ID if available
-                    if (data.data && data.data.episodes && data.data.episodes.length > 0) {
-                        document.getElementById('episodeId').value = data.data.episodes[0].id;
+                    // Store episodes for quick access
+                    if (data.data && data.data.episodes) {
+                        currentEpisodes = data.data.episodes;
+                        showEpisodesList(resultDiv, data.data.episodes);
                     }
                 } else {
-                    showError(resultDiv, data.error || 'Failed to fetch media info');
+                    const errorMsg = data.error || data.details || 'Failed to fetch media info';
+                    showAlert(resultDiv, errorMsg, 'error');
+                    if (data.suggestion) {
+                        showAlert(resultDiv, 'Suggestion: ' + data.suggestion, 'info');
+                    }
                 }
             } catch (error) {
-                showError(resultDiv, 'Network error: ' + error.message);
+                console.error('Network error:', error);
+                showAlert(resultDiv, 'Network error: Cannot connect to API server', 'error');
             }
             
-            resetLoading(loadingText, 'Get Media Info');
+            resetLoading(btn, loadingText, 'Get Media Info');
         }
 
         async function getEpisodeSource() {
-            const episodeId = document.getElementById('episodeId').value;
+            const episodeId = document.getElementById('episodeId').value.trim();
             const resultDiv = document.getElementById('episodeResult');
+            const btn = document.getElementById('episodeBtn');
             const loadingText = document.getElementById('episodeLoadingText');
             
             if (!episodeId) {
-                showError(resultDiv, 'Please enter an Episode ID');
+                showAlert(resultDiv, 'Please enter an Episode ID', 'error');
                 return;
             }
 
-            setLoading(loadingText, 'Getting Episode Source...');
+            if (!/^\d+$/.test(episodeId)) {
+                showAlert(resultDiv, 'Episode ID must be a number', 'error');
+                return;
+            }
+
+            setLoading(btn, loadingText, 'Getting Episode Source...');
+            clearPreviousResults(resultDiv);
             
             try {
+                console.log('Fetching episode source for ID:', episodeId);
                 const response = await fetch(`/api/source/${episodeId}`);
                 const data = await response.json();
                 
-                if (response.ok) {
-                    showSuccess(resultDiv, 'Episode source retrieved successfully!');
-                    showResult(resultDiv, data);
+                if (response.ok && data.success) {
+                    showAlert(resultDiv, 'Episode source retrieved successfully!', 'success');
+                    showResult(resultDiv, data, 'Episode Source & Subtitles');
                 } else {
-                    showError(resultDiv, data.error || 'Failed to fetch episode source');
+                    const errorMsg = data.error || data.details || 'Failed to fetch episode source';
+                    showAlert(resultDiv, errorMsg, 'error');
                 }
             } catch (error) {
-                showError(resultDiv, 'Network error: ' + error.message);
+                console.error('Network error:', error);
+                showAlert(resultDiv, 'Network error: Cannot connect to API server', 'error');
             }
             
-            resetLoading(loadingText, 'Get Episode Source');
+            resetLoading(btn, loadingText, 'Get Episode Source');
         }
 
-        function setLoading(element, text) {
-            element.innerHTML = `<span class="loading"></span>${text}`;
-            element.parentElement.disabled = true;
+        function showEpisodesList(container, episodes) {
+            if (!episodes || episodes.length === 0) return;
+            
+            const episodeContainer = document.createElement('div');
+            episodeContainer.innerHTML = `
+                <h4 style="color: #4f46e5; margin: 15px 0 10px 0;">📺 Available Episodes (Click to select):</h4>
+                <div class="episode-list">
+                    ${episodes.map(ep => `
+                        <div class="episode-item" onclick="selectEpisode(${ep.id})">
+                            <strong>Episode ${ep.number}</strong> - ID: ${ep.id}
+                            ${ep.sub ? `<span style="color: #059669;">(${ep.sub} subtitles)</span>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(episodeContainer);
         }
 
-        function resetLoading(element, text) {
-            element.innerHTML = text;
-            element.parentElement.disabled = false;
+        function selectEpisode(episodeId) {
+            document.getElementById('episodeId').value = episodeId;
+            showAlert(document.getElementById('episodeResult'), `Episode ${episodeId} selected! Click "Get Episode Source" to fetch streaming links.`, 'info');
         }
 
-        function showError(container, message) {
-            const existingResult = container.querySelector('.result-container');
-            if (existingResult) existingResult.remove();
-            
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error';
-            errorDiv.textContent = message;
-            container.appendChild(errorDiv);
-            
-            setTimeout(() => errorDiv.remove(), 5000);
+        function setLoading(btn, textElement, text) {
+            textElement.innerHTML = `<span class="loading"></span>${text}`;
+            btn.disabled = true;
+            btn.classList.add('btn-loading');
         }
 
-        function showSuccess(container, message) {
-            const existingError = container.querySelector('.error');
-            if (existingError) existingError.remove();
-            
-            const successDiv = document.createElement('div');
-            successDiv.className = 'success';
-            successDiv.textContent = message;
-            container.appendChild(successDiv);
-            
-            setTimeout(() => successDiv.remove(), 3000);
+        function resetLoading(btn, textElement, text) {
+            textElement.innerHTML = text;
+            btn.disabled = false;
+            btn.classList.remove('btn-loading');
         }
 
-        function showResult(container, data) {
-            const existingResult = container.querySelector('.result-container');
-            if (existingResult) existingResult.remove();
+        function showAlert(container, message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            container.appendChild(alertDiv);
             
+            // Auto-remove success/info alerts after 5 seconds
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        function clearPreviousResults(container) {
+            // Remove old results but keep alerts briefly
+            const oldResults = container.querySelectorAll('.result-container, .episode-list');
+            oldResults.forEach(result => result.remove());
+        }
+
+        function showResult(container, data, title) {
             const resultContainer = document.createElement('div');
             resultContainer.className = 'result-container';
             
-            const title = document.createElement('h3');
-            title.textContent = 'API Response:';
-            resultContainer.appendChild(title);
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = `📊 ${title}`;
+            resultContainer.appendChild(titleElement);
             
             const jsonOutput = document.createElement('div');
             jsonOutput.className = 'json-output';
-            jsonOutput.textContent = JSON.stringify(data, null, 2);
+            jsonOutput.innerHTML = syntaxHighlight(JSON.stringify(data, null, 2));
             resultContainer.appendChild(jsonOutput);
             
             container.appendChild(resultContainer);
         }
 
-        // Allow Enter key to submit
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // Allow Enter key to submit forms
         document.getElementById('mediaId').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') getMediaInfo();
         });
@@ -409,6 +628,9 @@ curl http://localhost:3000/api/source/163633</pre>
         document.getElementById('episodeId').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') getEpisodeSource();
         });
+
+        // Auto-check API status every 2 minutes
+        setInterval(checkApiStatus, 120000);
     </script>
 </body>
 </html>
